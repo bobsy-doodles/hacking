@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Share your location</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Arial; padding: 20px; max-width:600px; margin:auto; }
+    button { padding: 10px 16px; font-size:16px; }
+    .notice { background:#fffbdd; border-left:4px solid #ffd24d; padding:10px; margin-bottom:12px; }
+    .status { margin-top:12px; color:#333; }
+  </style>
+</head>
+<body>
+  <h1>Share your location</h1>
+
+  <div class="notice">
+    <strong>Consent required:</strong> By tapping “Share my location” you agree to send your current GPS coordinates to Example Org. They will use this only to [state purpose], keep data until [retention period], and you can request deletion at [contact info].
+  </div>
+
+  <p>Tap the button below to allow the browser to share your location. This will open a prompt from your device — only proceed if you consent.</p>
+
+  <button id="btn">Share my location</button>
+
+  <div class="status" id="status"></div>
+
+  <script>
+    const btn = document.getElementById('btn');
+    const status = document.getElementById('status');
+
+    btn.addEventListener('click', async () => {
+      status.textContent = 'Requesting location permission...';
+      if (!navigator.geolocation) {
+        status.textContent = 'Geolocation is not supported by your browser.';
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const data = {
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          accuracy_m: pos.coords.accuracy,
+          timestamp: new Date(pos.timestamp).toISOString(),
+          // optionally include an identifier if the user consents (e.g. name or QR id)
+        };
+
+        status.textContent = 'Sending location...';
+
+        try {
+          const resp = await fetch('https://your-server.example.com/receive-location', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+            credentials: 'omit' // do not send cookies unless necessary and with consent
+          });
+
+          if (resp.ok) {
+            status.textContent = 'Location sent. Thank you.';
+          } else {
+            status.textContent = 'Server error: ' + resp.status;
+          }
+        } catch (err) {
+          status.textContent = 'Network error: ' + err.message;
+        }
+
+      }, (err) => {
+        if (err.code === err.PERMISSION_DENIED) {
+          status.textContent = 'Permission denied. Location not shared.';
+        } else {
+          status.textContent = 'Error getting location: ' + err.message;
+        }
+      }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+    });
+  </script>
+</body>
+</html>
